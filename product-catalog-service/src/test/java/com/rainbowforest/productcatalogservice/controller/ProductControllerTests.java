@@ -1,5 +1,6 @@
 package com.rainbowforest.productcatalogservice.controller;
 import com.rainbowforest.productcatalogservice.entity.Product;
+import com.rainbowforest.productcatalogservice.entity.Category;
 import com.rainbowforest.productcatalogservice.service.ProductService;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,10 +38,13 @@ public class ProductControllerTests {
 
     @Before
     public void setUp(){
+        Category category = new Category();
+        category.setCategoryName(PRODUCT_CATEGORY);
+
         product = new Product();
         product.setId(PRODUCT_ID);
         product.setProductName(PRODUCT_NAME);
-        product.setCategory(PRODUCT_CATEGORY);
+        product.setCategory(category);
         products = new ArrayList<Product>();
         products.add(product);
 
@@ -56,7 +60,8 @@ public class ProductControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$[0].id").value(PRODUCT_ID))
-                .andExpect(jsonPath("$[0].productName").value(PRODUCT_NAME));
+                .andExpect(jsonPath("$[0].productName").value(PRODUCT_NAME))
+                .andExpect(jsonPath("$[0].category.categoryName").value(PRODUCT_CATEGORY));
 
         verify(productService, Mockito.times(1)).getAllProduct();
         verifyNoMoreInteractions(productService);
@@ -91,7 +96,7 @@ public class ProductControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$[0].id").value(PRODUCT_ID))
-                .andExpect(jsonPath("$[0].category").value(PRODUCT_CATEGORY));
+                .andExpect(jsonPath("$[0].category.categoryName").value(PRODUCT_CATEGORY));
 
         verify(productService, times(1)).getAllProductByCategory(anyString());
         verifyNoMoreInteractions(productService);
@@ -125,7 +130,7 @@ public class ProductControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(PRODUCT_ID))
                 .andExpect(jsonPath("$.productName").value(PRODUCT_NAME))
-                .andExpect(jsonPath("$.category").value(PRODUCT_CATEGORY));
+                .andExpect(jsonPath("$.category.categoryName").value(PRODUCT_CATEGORY));
 
         verify(productService, times(1)).getProductById(PRODUCT_ID);
         verifyNoMoreInteractions(productService);

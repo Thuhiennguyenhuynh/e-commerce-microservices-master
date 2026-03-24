@@ -1,6 +1,7 @@
 package com.rainbowforest.productcatalogservice.service;
 
 import com.rainbowforest.productcatalogservice.entity.Product;
+import com.rainbowforest.productcatalogservice.entity.Category;
 import com.rainbowforest.productcatalogservice.repository.ProductRepository;
 import org.junit.Before;
 import org.junit.*;
@@ -36,10 +37,13 @@ public class ProductServiceTests {
 
     @Before
     public void setUp(){
+        Category category = new Category();
+        category.setCategoryName(PRODUCT_CATEGORY);
+
         product = new Product();
         product.setId(PRODUCT_ID);
         product.setProductName(PRODUCT_NAME);
-        product.setCategory(PRODUCT_CATEGORY);
+        product.setCategory(category);
         products = new ArrayList<Product>();
         products.add(product);
     }
@@ -83,7 +87,7 @@ public class ProductServiceTests {
         List<Product> foundProducts = productService.getAllProductByCategory(PRODUCT_CATEGORY);
 
         //Verification
-        assertEquals(products.get(0).getCategory(), PRODUCT_CATEGORY);
+        assertEquals(products.get(0).getCategory().getCategoryName(), PRODUCT_CATEGORY);
         assertEquals(products.get(0).getProductName(), PRODUCT_NAME);
         Mockito.verify(productRepository, Mockito.times(1)).findAllByCategory(Mockito.anyString());
         Mockito.verifyNoMoreInteractions(productRepository);

@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.rainbowforest.productcatalogservice.entity.Product;
+import com.rainbowforest.productcatalogservice.entity.Category;
 import com.rainbowforest.productcatalogservice.service.ProductService;
 
 @RunWith(SpringRunner.class)
@@ -41,9 +42,11 @@ public class AdminProductControllerTest {
 	@Test
     public void add_product_controller_should_return201_when_product_isSaved() throws Exception {
 		//given
+		Category category = new Category();
+		category.setCategoryName(PRODUCT_CATEGORY);
 		Product product = new Product();
 		product.setProductName(PRODUCT_NAME);
-		product.setCategory(PRODUCT_CATEGORY);
+		product.setCategory(category);
 				
     	ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
@@ -51,14 +54,14 @@ public class AdminProductControllerTest {
         String requestJson = objectWriter.writeValueAsString(product);
         
         //when      
-        when(productService.addProduct(new Product())).thenReturn(product);
+        when(productService.addProduct(any(Product.class))).thenReturn(product);
 
         //then
         mockMvc.perform(post("/admin/products").content(requestJson).contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$.productName").value(PRODUCT_NAME))
-                .andExpect(jsonPath("$.category").value(PRODUCT_CATEGORY));
+                .andExpect(jsonPath("$.category.categoryName").value(PRODUCT_CATEGORY));
 
     	verify(productService, times(1)).addProduct(any(Product.class));
         verifyNoMoreInteractions(productService);
@@ -76,5 +79,55 @@ public class AdminProductControllerTest {
         //then
         mockMvc.perform(post("/admin/products").content(requestJson).contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isBadRequest());	
+	}
+
+	@Test
+	public void update_product_controller_should_return200_when_product_exists() throws Exception {
+		Category existingCategory = new Category();
+		existingCategory.setCategoryName(PRODUCT_CATEGORY);
+		Product existing = new Product();
+		existing.setId(1L);
+		existing.setProductName(PRODUCT_NAME);
+		existing.setCategory(existingCategory);
+		existing.setAvailability(5);
+
+		Category updatedCategory = new Category();
+		updatedCategory.setCategoryName("updatedCategory");
+		Product updatedRequest = new Product();
+		updatedRequest.setProductName("updated");
+		updatedRequest.setCategory(updatedCategory);
+		updatedRequest.setAvailability(10);
+
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+		ObjectWriter objectWriter = mapper.writer().withDefaultPrettyPrinter();
+		String requestJson = objectWriter.writeValueAsString(updatedRequest);
+
+		when(productService.getProductById(1L)).thenReturn(existing);
+		when(productService.updateProduct(1L, any(Product.class))).thenReturn(updatedRequest);
+
+		mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/admin/products/1")
+				.content(requestJson)
+				.contentType(MediaType.APPLICATION_JSON_UTF8))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.productName").value("updated"))
+				.andExpect(jsonPath("$.category.categoryName").value("updatedCategory"));
+
+		verify(productService, times(1)).getProductById(1L);
+		verify(productService, times(1)).updateProduct(1L, any(Product.class));
+	}
+
+	@Test
+	public void update_product_controller_should_return404_when_product_not_found() throws Exception {
+		Product updatedRequest = new Product();
+		updatedRequest.setProductName("updated");
+		String requestJson = new ObjectMapper().writeValueAsString(updatedRequest);
+
+		when(productService.getProductById(10L)).thenReturn(null);
+
+		mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/admin/products/10")
+				.content(requestJson)
+				.contentType(MediaType.APPLICATION_JSON_UTF8))
+				.andExpect(status().isNotFound());
 	}
 }
