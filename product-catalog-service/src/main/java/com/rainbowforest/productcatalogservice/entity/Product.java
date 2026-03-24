@@ -25,9 +25,14 @@ public class Product {
     @Column (name = "discription")
     private String discription;
 
-    @Column (name = "category")
+    // @Column (name = "category")
+    // @NotNull
+    // private String category;
+
+	@ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
     @NotNull
-    private String category;
+    private Category category;
 
     @Column (name = "availability")
     @NotNull
@@ -69,11 +74,18 @@ public class Product {
 		this.discription = discription;
 	}
 
-	public String getCategory() {
+	// public String getCategory() {
+	// 	return category;
+	// }
+
+	// public void setCategory(String category) {
+	// 	this.category = category;
+	// }
+
+	public Category getCategory() {
 		return category;
 	}
-
-	public void setCategory(String category) {
+	public void setCategory(Category category) {
 		this.category = category;
 	}
 
