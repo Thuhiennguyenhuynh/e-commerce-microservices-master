@@ -79,16 +79,19 @@ public class UserController {
     	return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
     }
 
-    @PutMapping(value = "/users/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable("id") Long id, @RequestBody User user) {
-        User updated = userService.updateUser(id, user);
-        if (updated != null) {
+    @PostMapping(value = "/users/login")
+    public ResponseEntity<User> loginUser(@RequestParam("userName") String userName, @RequestParam("password") String password) {
+        User user = userService.getUserByName(userName);
+        
+        // Kiểm tra user có tồn tại và password có khớp không (Lưu ý: Thực tế nên mã hóa password)
+        if (user != null && password.equals(user.getUserPassword())) {
             return new ResponseEntity<User>(
-                    updated,
+                    user,
                     headerGenerator.getHeadersForSuccessGetMethod(),
                     HttpStatus.OK);
         }
         return new ResponseEntity<User>(
                 headerGenerator.getHeadersForError(),
-                HttpStatus.NOT_FOUND);
+                HttpStatus.UNAUTHORIZED); // Trả về 401 nếu sai tài khoản/mật khẩu
+        }
     }

@@ -58,4 +58,26 @@ public class AdminProductController {
     	}
     	return new ResponseEntity<Void>(headerGenerator.getHeadersForError(), HttpStatus.NOT_FOUND);      
     }
+	@PutMapping(value = "/products/{id}")
+    public ResponseEntity<Product> updateProduct(@PathVariable("id") Long id, @RequestBody Product productRequest) {
+        Product currentProduct = productService.getProductById(id);
+        if (currentProduct != null) {
+            try {
+                // Giả định bạn có phương thức update trong productService
+                // currentProduct.setProductName(productRequest.getProductName());
+                // ... cập nhật các trường khác ...
+                Product updatedProduct = productService.updateProduct(id, productRequest); 
+                return new ResponseEntity<Product>(
+                        updatedProduct,
+                        headerGenerator.getHeadersForSuccessGetMethod(),
+                        HttpStatus.OK);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new ResponseEntity<Product>(
+                        headerGenerator.getHeadersForError(),
+                        HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+        return new ResponseEntity<Product>(headerGenerator.getHeadersForError(), HttpStatus.NOT_FOUND);
+    }
 }
