@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/admin/categories")
 public class AdminCategoryController {
@@ -35,34 +35,12 @@ public class AdminCategoryController {
         if (category != null) {
             try {
                 Category savedCategory = categoryService.addCategory(category);
-                return new ResponseEntity<>(
-                        savedCategory, 
-                        headerGenerator.getHeadersForSuccessPostMethod(request, savedCategory.getId()), 
-                        HttpStatus.CREATED);
+                return new ResponseEntity<>(savedCategory, headerGenerator.getHeadersForSuccessPostMethod(request, savedCategory.getId()), HttpStatus.CREATED);
             } catch (Exception e) {
                 e.printStackTrace();
                 return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
         return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.BAD_REQUEST);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Category> updateCategory(@PathVariable("id") Long id, @RequestBody Category category) {
-        Category updated = categoryService.updateCategory(id, category);
-        if (updated != null) {
-            return new ResponseEntity<>(updated, headerGenerator.getHeadersForSuccessGetMethod(), HttpStatus.OK);
-        }
-        return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.NOT_FOUND);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable("id") Long id) {
-        Category category = categoryService.getCategoryById(id);
-        if (category != null) {
-            categoryService.deleteCategory(id);
-            return new ResponseEntity<>(headerGenerator.getHeadersForSuccessGetMethod(), HttpStatus.OK);
-        }
-        return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.NOT_FOUND);
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-
+@CrossOrigin("*")
 @RestController
 public class UserController {
 
@@ -94,4 +94,18 @@ public class UserController {
                 headerGenerator.getHeadersForError(),
                 HttpStatus.UNAUTHORIZED); // Trả về 401 nếu sai tài khoản/mật khẩu
         }
+
+        @PutMapping(value = "/users/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable("id") Long id, @RequestBody User user) {
+        User updated = userService.updateUser(id, user);
+        if (updated != null) {
+            return new ResponseEntity<User>(
+                    updated,
+                    headerGenerator.getHeadersForSuccessGetMethod(),
+                    HttpStatus.OK);
+        }
+        return new ResponseEntity<User>(
+                headerGenerator.getHeadersForError(),
+                HttpStatus.NOT_FOUND);
+    }
     }
