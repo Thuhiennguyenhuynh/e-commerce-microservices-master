@@ -23,18 +23,29 @@ public class AdminProductController {
     private HeaderGenerator headerGenerator;
 
     // API Lấy danh sách toàn bộ sản phẩm cho Admin
+    // @GetMapping(value = "/products")
+    // public ResponseEntity<List<Product>> getAllProducts() {
+    //     List<Product> products = productService.getAllProduct();
+    //     if(!products.isEmpty()) {
+    //         return new ResponseEntity<List<Product>>(
+    //                 products,
+    //                 headerGenerator.getHeadersForSuccessGetMethod(),
+    //                 HttpStatus.OK);
+    //     }
+    //     return new ResponseEntity<List<Product>>(
+    //             headerGenerator.getHeadersForError(),
+    //             HttpStatus.NOT_FOUND);       
+    // }
+
     @GetMapping(value = "/products")
     public ResponseEntity<List<Product>> getAllProducts() {
         List<Product> products = productService.getAllProduct();
-        if(!products.isEmpty()) {
-            return new ResponseEntity<List<Product>>(
-                    products,
-                    headerGenerator.getHeadersForSuccessGetMethod(),
-                    HttpStatus.OK);
-        }
+        
+        // Luôn trả về 200 OK, dù mảng products có dữ liệu hay rỗng
         return new ResponseEntity<List<Product>>(
-                headerGenerator.getHeadersForError(),
-                HttpStatus.NOT_FOUND);       
+                products,
+                headerGenerator.getHeadersForSuccessGetMethod(),
+                HttpStatus.OK);
     }
 
     // API Lấy 1 sản phẩm cụ thể theo ID cho Admin
