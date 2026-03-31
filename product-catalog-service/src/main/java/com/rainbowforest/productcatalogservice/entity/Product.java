@@ -2,6 +2,9 @@ package com.rainbowforest.productcatalogservice.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.persistence.*;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
@@ -15,11 +18,13 @@ public class Product {
     private Long id;
 
     @Column (name = "product_name")
-    @NotNull
+	@NotBlank(message = "Tên sản phẩm không được để trống")
+    // @NotNull
     private String productName;
 
     @Column (name = "price")
-    @NotNull
+    @NotNull(message = "Giá không được để trống")
+	@DecimalMin(value = "0.0", inclusive = false, message = "Giá phải lớn hơn 0")
     private BigDecimal price;
 
     @Column (name = "discription")
@@ -31,11 +36,13 @@ public class Product {
 
 	@ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
-    @NotNull
+	@NotNull(message = "Danh mục không được để trống")
     private Category category;
 
     @Column (name = "availability")
-    @NotNull
+    @NotNull(message = "Số lượng không được để trống")
+	@Min(value = 0, message = "Số lượng không được phép nhỏ hơn 0")
+
     private int availability;
 
 	public Product() {
