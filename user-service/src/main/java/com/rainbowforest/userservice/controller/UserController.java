@@ -3,6 +3,8 @@ package com.rainbowforest.userservice.controller;
 import com.rainbowforest.userservice.entity.User;
 import com.rainbowforest.userservice.http.header.HeaderGenerator;
 import com.rainbowforest.userservice.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +14,8 @@ import java.util.List;
 @CrossOrigin("*")
 @RestController
 public class UserController {
+    
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     private UserService userService;
@@ -23,44 +27,30 @@ public class UserController {
     public ResponseEntity<List<User>> getAllUsers(){
         List<User> users =  userService.getAllUsers();
         if(!users.isEmpty()) {
-        	return new ResponseEntity<List<User>>(
-        		users,
-        		headerGenerator.getHeadersForSuccessGetMethod(),
-        		HttpStatus.OK);
+        	return new ResponseEntity<>(users, headerGenerator.getHeadersForSuccessGetMethod(), HttpStatus.OK);
         }
-        return new ResponseEntity<List<User>>(
-        		headerGenerator.getHeadersForError(),
-        		HttpStatus.NOT_FOUND);
+        logger.warn("No users found");
+        return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.NOT_FOUND);
     }
 
     @GetMapping (value = "/users", params = "name")
     public ResponseEntity<User> getUserByName(@RequestParam("name") String userName){
     	User user = userService.getUserByName(userName);
     	if(user != null) {
-    		return new ResponseEntity<User>(
-    				user,
-    				headerGenerator.
-    				getHeadersForSuccessGetMethod(),
-    				HttpStatus.OK);
+    		return new ResponseEntity<>(user, headerGenerator.getHeadersForSuccessGetMethod(), HttpStatus.OK);
     	}
-        return new ResponseEntity<User>(
-        		headerGenerator.getHeadersForError(),
-        		HttpStatus.NOT_FOUND);
+        logger.warn("User not found with name: {}", userName);
+        return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.NOT_FOUND);
     }
 
     @GetMapping (value = "/users/{id}")
     public ResponseEntity<User> getUserById(@PathVariable("id") Long id){
         User user = userService.getUserById(id);
         if(user != null) {
-    		return new ResponseEntity<User>(
-    				user,
-    				headerGenerator.
-    				getHeadersForSuccessGetMethod(),
-    				HttpStatus.OK);
+    		return new ResponseEntity<>(user, headerGenerator.getHeadersForSuccessGetMethod(), HttpStatus.OK);
     	}
-        return new ResponseEntity<User>(
-        		headerGenerator.getHeadersForError(),
-        		HttpStatus.NOT_FOUND);
+        logger.warn("User not found with id: {}", id);
+        return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.NOT_FOUND);
     }
 
     @PostMapping (value = "/users")
@@ -68,44 +58,47 @@ public class UserController {
     	if(user != null)
     		try {
     			userService.saveUser(user);
-    			return new ResponseEntity<User>(
-    					user,
-    					headerGenerator.getHeadersForSuccessPostMethod(request, user.getId()),
-    					HttpStatus.CREATED);
+    			logger.info("User created successfully with id: {}", user.getId());
+    			return new ResponseEntity<>(user, headerGenerator.getHeadersForSuccessPostMethod(request, user.getId()), HttpStatus.CREATED);
     		}catch (Exception e) {
-    			e.printStackTrace();
-    			return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
+    			logger.error("Error creating user: ", e);
+    			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-    	return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
+    	return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping(value = "/users/login")
     public ResponseEntity<User> loginUser(@RequestParam("userName") String userName, @RequestParam("password") String password) {
         User user = userService.getUserByName(userName);
         
-        // Kiểm tra user có tồn tại và password có khớp không (Lưu ý: Thực tế nên mã hóa password)
         if (user != null && password.equals(user.getUserPassword())) {
-            return new ResponseEntity<User>(
-                    user,
-                    headerGenerator.getHeadersForSuccessGetMethod(),
-                    HttpStatus.OK);
+            logger.info("User login successful: {}", userName);
+            return new ResponseEntity<>(user, headerGenerator.getHeadersForSuccessGetMethod(), HttpStatus.OK);
         }
-        return new ResponseEntity<User>(
-                headerGenerator.getHeadersForError(),
-                HttpStatus.UNAUTHORIZED); // Trả về 401 nếu sai tài khoản/mật khẩu
-        }
+        logger.warn("Login failed for user: {}", userName);
+        return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.UNAUTHORIZED);
+    }
 
-        @PutMapping(value = "/users/{id}")
+    @PutMapping(value = "/users/{id}")
     public ResponseEntity<User> updateUser(@PathVariable("id") Long id, @RequestBody User user) {
         User updated = userService.updateUser(id, user);
         if (updated != null) {
-            return new ResponseEntity<User>(
-                    updated,
-                    headerGenerator.getHeadersForSuccessGetMethod(),
-                    HttpStatus.OK);
+            logger.info("User updated successfully with id: {}", id);
+            return new ResponseEntity<>(updated, headerGenerator.getHeadersForSuccessGetMethod(), HttpStatus.OK);
         }
-        return new ResponseEntity<User>(
-                headerGenerator.getHeadersForError(),
-                HttpStatus.NOT_FOUND);
+        logger.warn("User not found for update with id: {}", id);
+        return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.NOT_FOUND);
     }
+
+    @DeleteMapping(value = "/users/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable("id") Long id) {
+        try {
+            userService.deleteUser(id);
+            logger.info("User deleted successfully with id: {}", id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            logger.error("Error deleting user with id: {}", id, e);
+            return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.NOT_FOUND);
+        }
     }
+}

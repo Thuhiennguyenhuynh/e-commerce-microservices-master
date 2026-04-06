@@ -4,6 +4,8 @@ import com.rainbowforest.userservice.entity.User;
 import com.rainbowforest.userservice.entity.UserRole;
 import com.rainbowforest.userservice.repository.UserRepository;
 import com.rainbowforest.userservice.repository.UserRoleRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +14,8 @@ import java.util.List;
 @Service
 @Transactional
 public class UserServiceImpl implements UserService {
+    
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -26,7 +30,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(Long id) {
-        return userRepository.getOne(id);
+        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found with id: " + id));
     }
 
     @Override
@@ -71,5 +75,13 @@ public class UserServiceImpl implements UserService {
         }
 
         return userRepository.save(existing);
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        userRepository.delete(user);
+        logger.info("User deleted with id: {}", id);
     }
 }

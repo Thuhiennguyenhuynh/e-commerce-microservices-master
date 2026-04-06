@@ -1,5 +1,6 @@
 package com.rainbowforest.orderservice.controller;
 
+import com.rainbowforest.orderservice.domain.Item;
 import com.rainbowforest.orderservice.http.header.HeaderGenerator;
 import com.rainbowforest.orderservice.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,26 +20,21 @@ public class CartController {
     private HeaderGenerator headerGenerator;
 
     @GetMapping (value = "/cart")
-    public ResponseEntity<List<Object>> getCart(@RequestHeader(value = "Cookie") String cartId){
-        List<Object> cart = cartService.getCart(cartId);
+    public ResponseEntity<List<Item>> getCart(@RequestHeader(value = "Cookie") String cartId){
+        List<Item> cart = cartService.getCart(cartId);
         if(!cart.isEmpty()) {
-        	return new ResponseEntity<List<Object>>(
-        			cart,
-        			headerGenerator.getHeadersForSuccessGetMethod(),
-        			HttpStatus.OK);
+        	return new ResponseEntity<>(cart, headerGenerator.getHeadersForSuccessGetMethod(), HttpStatus.OK);
         }
-    	return new ResponseEntity<List<Object>>(
-    			headerGenerator.getHeadersForError(),
-    			HttpStatus.NOT_FOUND);  
+    	return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.NOT_FOUND);  
     }
 
     @PostMapping(value = "/cart", params = {"productId", "quantity"})
-    public ResponseEntity<List<Object>> addItemToCart(
+    public ResponseEntity<List<Item>> addItemToCart(
             @RequestParam("productId") Long productId,
             @RequestParam("quantity") Integer quantity,
             @RequestHeader(value = "Cookie") String cartId,
             HttpServletRequest request) {
-        List<Object> cart = cartService.getCart(cartId);
+        List<Item> cart = cartService.getCart(cartId);
         if(cart != null) {
         	if(cart.isEmpty()){
         		cartService.addItemToCart(cartId, productId, quantity);
@@ -49,29 +45,20 @@ public class CartController {
         			cartService.addItemToCart(cartId, productId, quantity);
         		}
         	}
-        	return new ResponseEntity<List<Object>>(
-        			cart,
-        			headerGenerator.getHeadersForSuccessPostMethod(request, Long.parseLong(cartId)),
-        			HttpStatus.CREATED);
+        	return new ResponseEntity<>(cart, headerGenerator.getHeadersForSuccessPostMethod(request, Long.parseLong(cartId)), HttpStatus.CREATED);
         }
-        return new ResponseEntity<List<Object>>(
-        		headerGenerator.getHeadersForError(),
-        		HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.BAD_REQUEST);
     }
 
     @DeleteMapping(value = "/cart", params = "productId")
-    public ResponseEntity<Void> removeItemFromCart(
+    public ResponseEntity<?> removeItemFromCart(
             @RequestParam("productId") Long productId,
             @RequestHeader(value = "Cookie") String cartId){
-    	List<Object> cart = cartService.getCart(cartId);
+    	List<Item> cart = cartService.getCart(cartId);
     	if(cart != null) {
     		cartService.deleteItemFromCart(cartId, productId);
-            return new ResponseEntity<Void>(
-            		headerGenerator.getHeadersForSuccessGetMethod(),
-            		HttpStatus.OK);
+            return new ResponseEntity<>(headerGenerator.getHeadersForSuccessGetMethod(), HttpStatus.OK);
     	}
-        return new ResponseEntity<Void>(
-        		headerGenerator.getHeadersForError(),
-        		HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.NOT_FOUND);
     }
 }

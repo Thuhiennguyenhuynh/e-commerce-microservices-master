@@ -42,6 +42,7 @@ public class ProductServiceTests {
 
         product = new Product();
         product.setId(PRODUCT_ID);
+        product.setSku("SKU123");
         product.setProductName(PRODUCT_NAME);
         product.setCategory(category);
         products = new ArrayList<Product>();
@@ -67,21 +68,21 @@ public class ProductServiceTests {
     @Test
     public void get_one_by_id_test(){
         // Data preparation
-        Mockito.when(productRepository.getOne(PRODUCT_ID)).thenReturn(product);
+        Mockito.when(productRepository.findById(PRODUCT_ID)).thenReturn(java.util.Optional.of(product));
 
         // Method call
         Product found = productService.getProductById(PRODUCT_ID);
 
         // Verification
         assertEquals(found.getId(), PRODUCT_ID);
-        Mockito.verify(productRepository, Mockito.times(1)).getOne(Mockito.anyLong());
+        Mockito.verify(productRepository, Mockito.times(1)).findById(Mockito.anyLong());
         Mockito.verifyNoMoreInteractions(productRepository);
     }
 
     @Test
     public void get_all_product_by_category_test(){
         // Data preparation
-        Mockito.when(productRepository.findAllByCategory(PRODUCT_CATEGORY)).thenReturn(products);
+        Mockito.when(productRepository.findAllByCategory_CategoryName(PRODUCT_CATEGORY)).thenReturn(products);
 
         //Method call
         List<Product> foundProducts = productService.getAllProductByCategory(PRODUCT_CATEGORY);
@@ -89,21 +90,21 @@ public class ProductServiceTests {
         //Verification
         assertEquals(products.get(0).getCategory().getCategoryName(), PRODUCT_CATEGORY);
         assertEquals(products.get(0).getProductName(), PRODUCT_NAME);
-        Mockito.verify(productRepository, Mockito.times(1)).findAllByCategory(Mockito.anyString());
+        Mockito.verify(productRepository, Mockito.times(1)).findAllByCategory_CategoryName(Mockito.anyString());
         Mockito.verifyNoMoreInteractions(productRepository);
     }
 
     @Test
     public void get_all_products_by_name_test(){
         // Data preparation
-        Mockito.when(productRepository.findAllByProductName(PRODUCT_NAME)).thenReturn(products);
+        Mockito.when(productRepository.findAllByProductNameContainingIgnoreCase(PRODUCT_NAME)).thenReturn(products);
 
         //Method call
         List<Product> foundProducts = productService.getAllProductsByName(PRODUCT_NAME);
 
         //Verification
         assertEquals(foundProducts.get(0).getProductName(), PRODUCT_NAME);
-        Mockito.verify(productRepository, Mockito.times(1)).findAllByProductName(Mockito.anyString());
+        Mockito.verify(productRepository, Mockito.times(1)).findAllByProductNameContainingIgnoreCase(Mockito.anyString());
         Mockito.verifyNoMoreInteractions(productRepository);
     }
 

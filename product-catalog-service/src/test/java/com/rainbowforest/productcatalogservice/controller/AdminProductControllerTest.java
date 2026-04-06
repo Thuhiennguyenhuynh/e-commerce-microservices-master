@@ -45,9 +45,10 @@ public class AdminProductControllerTest {
 		Category category = new Category();
 		category.setCategoryName(PRODUCT_CATEGORY);
 		Product product = new Product();
-		product.setProductName(PRODUCT_NAME);
-		product.setCategory(category);
-				
+        product.setSku("SKU123");
+        product.setProductName(PRODUCT_NAME);
+        product.setCategory(category);
+        product.setAvailability(1);
     	ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         ObjectWriter objectWriter = mapper.writer().withDefaultPrettyPrinter();
@@ -94,7 +95,7 @@ public class AdminProductControllerTest {
 		Category updatedCategory = new Category();
 		updatedCategory.setCategoryName("updatedCategory");
 		Product updatedRequest = new Product();
-		updatedRequest.setProductName("updated");
+        updatedRequest.setSku("SKU456");
 		updatedRequest.setCategory(updatedCategory);
 		updatedRequest.setAvailability(10);
 

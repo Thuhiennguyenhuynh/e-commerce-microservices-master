@@ -2,6 +2,7 @@ package com.rainbowforest.productcatalogservice.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Entity
@@ -14,7 +15,7 @@ public class Category {
     private Long id;
 
     @Column(name = "category_name", unique = true)
-    @NotNull
+    @NotBlank(message = "Tên danh mục không được để trống")
     private String categoryName;
 
     @Column(name = "description")
