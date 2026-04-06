@@ -9,8 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import javax.servlet.http.HttpServletRequest;
-
+@CrossOrigin("*")
 @RestController
 public class RegisterController {
 
@@ -20,19 +21,38 @@ public class RegisterController {
     @Autowired
     private HeaderGenerator headerGenerator;
     
-    @PostMapping(value = "/registration")
+//     @PostMapping(value = "/registration")
+//     public ResponseEntity<User> addUser(@RequestBody User user, HttpServletRequest request){
+//     	if(user != null)
+//     		try {
+//     			userService.saveUser(user);
+//     			return new ResponseEntity<User>(
+//     					user,
+//     					headerGenerator.getHeadersForSuccessPostMethod(request, user.getId()),
+//     					HttpStatus.CREATED);
+//     		}catch (Exception e) {
+//     			e.printStackTrace();
+//     			return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
+// 		}
+//     	return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
+//     }
+// }
+
+@PostMapping(value = "/registration")
     public ResponseEntity<User> addUser(@RequestBody User user, HttpServletRequest request){
-    	if(user != null)
+    	if(user != null) {
     		try {
-    			userService.saveUser(user);
+                // Hứng object trả về sau khi lưu thành công
+    			User savedUser = userService.saveUser(user); 
     			return new ResponseEntity<User>(
-    					user,
-    					headerGenerator.getHeadersForSuccessPostMethod(request, user.getId()),
+    					savedUser,
+    					headerGenerator.getHeadersForSuccessPostMethod(request, savedUser.getId()),
     					HttpStatus.CREATED);
-    		}catch (Exception e) {
-    			e.printStackTrace();
+    		} catch (Exception e) {
+    			e.printStackTrace(); // In lỗi ra console
     			return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+		    }
+        }
     	return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
     }
 }

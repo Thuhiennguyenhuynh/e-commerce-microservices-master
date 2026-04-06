@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 @CrossOrigin("*")
 @RestController
 public class UserController {
@@ -67,17 +68,23 @@ public class UserController {
     	return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    @PostMapping(value = "/users/login")
-    public ResponseEntity<User> loginUser(@RequestParam("userName") String userName, @RequestParam("password") String password) {
-        User user = userService.getUserByName(userName);
-        
-        if (user != null && password.equals(user.getUserPassword())) {
-            logger.info("User login successful: {}", userName);
-            return new ResponseEntity<>(user, headerGenerator.getHeadersForSuccessGetMethod(), HttpStatus.OK);
-        }
-        logger.warn("Login failed for user: {}", userName);
-        return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.UNAUTHORIZED);
+   @PostMapping(value = "/users/login")
+public ResponseEntity<User> loginUser(@RequestBody Map<String, String> loginData) {
+    String userName = loginData.get("userName");
+    String password = loginData.get("password");
+    
+    User user = userService.getUserByName(userName);
+    
+    if (user != null && password != null && password.equals(user.getUserPassword())) {
+        return new ResponseEntity<>(
+                user,
+                headerGenerator.getHeadersForSuccessGetMethod(),
+                HttpStatus.OK);
     }
+    return new ResponseEntity<>(
+            headerGenerator.getHeadersForError(),
+            HttpStatus.UNAUTHORIZED); // 401: Sai tài khoản/mật khẩu
+}
 
     @PutMapping(value = "/users/{id}")
     public ResponseEntity<User> updateUser(@PathVariable("id") Long id, @RequestBody User user) {

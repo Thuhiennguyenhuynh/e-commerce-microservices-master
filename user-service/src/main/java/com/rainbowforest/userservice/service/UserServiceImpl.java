@@ -38,12 +38,38 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByUserName(userName);
     }
 
-    @Override
+    // @Override
+    // public User saveUser(User user) {
+    //     user.setActive(1);
+    //     UserRole role = userRoleRepository.findUserRoleByRoleName("ROLE_USER");
+    //     user.setRole(role);
+    //     return userRepository.save(user);
+    // }
+
+@Override
     public User saveUser(User user) {
         user.setActive(1);
-        UserRole role = userRoleRepository.findUserRoleByRoleName("ROLE_USER");
+        
+        String roleName = "ROLE_USER"; // Mặc định là ROLE_USER
+        
+        // Nếu lúc tạo có gửi kèm roleName (ví dụ đăng ký tài khoản Admin)
+        if(user.getRole() != null && user.getRole().getRoleName() != null) {
+            roleName = user.getRole().getRoleName();
+        }
+
+        // Tìm role trong DB
+        UserRole role = userRoleRepository.findUserRoleByRoleName(roleName);
+        
+        // Nếu role chưa tồn tại trong DB, tạo mới role đó để tránh bị null
+        if (role == null) {
+            role = new UserRole();
+            role.setRoleName(roleName);
+            role = userRoleRepository.save(role); 
+        }
+
         user.setRole(role);
-        return userRepository.save(user);
+        // return userRepository.save(user);
+        return userRepository.saveAndFlush(user);
     }
 
     @Override
