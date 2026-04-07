@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-@CrossOrigin("*")
+// @CrossOrigin("*")
 @RestController
 public class ProductController {
 
@@ -22,12 +22,12 @@ public class ProductController {
     public ResponseEntity<List<Product>> getAllProducts(){
         List<Product> products =  productService.getAllProduct();
         if(!products.isEmpty()) {
-        	return new ResponseEntity<List<Product>>(
+        	return new ResponseEntity<>(
         			products,
         			headerGenerator.getHeadersForSuccessGetMethod(),
         			HttpStatus.OK);
         }
-        return new ResponseEntity<List<Product>>(
+        return new ResponseEntity<>(
         		headerGenerator.getHeadersForError(),
         		HttpStatus.NOT_FOUND);       
     }
@@ -36,12 +36,12 @@ public class ProductController {
     public ResponseEntity<List<Product>> getAllProductByCategory(@RequestParam ("category") String category){
         List<Product> products = productService.getAllProductByCategory(category);
         if(!products.isEmpty()) {
-        	return new ResponseEntity<List<Product>>(
+        	return new ResponseEntity<>(
         			products,
         			headerGenerator.getHeadersForSuccessGetMethod(),
         			HttpStatus.OK);
         }
-        return new ResponseEntity<List<Product>>(
+        return new ResponseEntity<>(
         		headerGenerator.getHeadersForError(),
         		HttpStatus.NOT_FOUND);
     }
@@ -50,12 +50,12 @@ public class ProductController {
     public ResponseEntity<Product> getOneProductById(@PathVariable ("id") long id){
         Product product =  productService.getProductById(id);
         if(product != null) {
-        	return new ResponseEntity<Product>(
+        	return new ResponseEntity<>(
         			product,
         			headerGenerator.getHeadersForSuccessGetMethod(),
         			HttpStatus.OK);
         }
-        return new ResponseEntity<Product>(
+        return new ResponseEntity<>(
         		headerGenerator.getHeadersForError(),
         		HttpStatus.NOT_FOUND);
     }
@@ -64,12 +64,12 @@ public class ProductController {
     public ResponseEntity<List<Product>> getAllProductsByName(@RequestParam ("name") String name){
         List<Product> products =  productService.getAllProductsByName(name);
         if(!products.isEmpty()) {
-        	return new ResponseEntity<List<Product>>(
+        	return new ResponseEntity<>(
         			products,
         			headerGenerator.getHeadersForSuccessGetMethod(),
         			HttpStatus.OK);
         }
-        return new ResponseEntity<List<Product>>(
+        return new ResponseEntity<>(
         		headerGenerator.getHeadersForError(),
         		HttpStatus.NOT_FOUND);
     }

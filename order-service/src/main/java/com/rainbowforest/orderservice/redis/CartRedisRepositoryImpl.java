@@ -28,7 +28,7 @@ public class CartRedisRepositoryImpl implements CartRedisRepository{
     }
 
     @Override
-    public Collection<Object> getCart(String key, Class type) {
+    public Collection<Object> getCart(String key, Class<?> type) {
         Collection<Object> cart = new ArrayList<>();
         for (String smember : jedis.smembers(key)) {
             try {
