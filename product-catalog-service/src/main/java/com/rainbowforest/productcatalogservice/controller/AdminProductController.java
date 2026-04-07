@@ -52,97 +52,65 @@ public class AdminProductController {
                 HttpStatus.OK);
     }
 
-    // API Thêm sản phẩm
-    @PostMapping
+  // Đã đổi từ private sang public
+    @PostMapping(value = "/products")
     public ResponseEntity<Product> addProduct(@RequestBody Product product, HttpServletRequest request){
     	if(product != null) {
     		try {
-    			Product savedProduct = productService.addProduct(product);
-    	        return new ResponseEntity<>(
-    	        		savedProduct,
-    	        		headerGenerator.getHeadersForSuccessPostMethod(request, savedProduct.getId()),
+    			productService.addProduct(product);
+    	        return new ResponseEntity<Product>(
+    	        		product,
+    	        		headerGenerator.getHeadersForSuccessPostMethod(request, product.getId()),
     	        		HttpStatus.CREATED);
     		}catch (Exception e) {
 				e.printStackTrace();
-				return new ResponseEntity<>(
+				return new ResponseEntity<Product>(
 						headerGenerator.getHeadersForError(),
 						HttpStatus.INTERNAL_SERVER_ERROR);
 			}
     	}
-    	return new ResponseEntity<>(
+    	return new ResponseEntity<Product>(
     			headerGenerator.getHeadersForError(),
     			HttpStatus.BAD_REQUEST);       
     }
     
-    // API Cập nhật sản phẩm
-    @PutMapping(value = "/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable("id") Long id, @RequestBody Product productRequest) {
-        Product currentProduct = productService.getProductById(id);
-        if (currentProduct != null) {
-            try {
-                // Gọi sang ProductService để update (Đảm bảo logic update nằm trong service)
-                Product updatedProduct = productService.updateProduct(id, productRequest); 
-                return new ResponseEntity<>(
-                        updatedProduct,
-                        headerGenerator.getHeadersForSuccessGetMethod(),
-                        HttpStatus.OK);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return new ResponseEntity<>(
-                        headerGenerator.getHeadersForError(),
-                        HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
-        return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.NOT_FOUND);
-    }
-
-    // API Xóa sản phẩm
-    @DeleteMapping(value = "/{id}")
+    // Đã đổi từ private sang public
+    @DeleteMapping(value = "/products/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable("id") Long id){
     	Product product = productService.getProductById(id);
     	if(product != null) {
     		try {
     			productService.deleteProduct(id);
-    	        return new ResponseEntity<>(
+    	        return new ResponseEntity<Void>(
     	        		headerGenerator.getHeadersForSuccessGetMethod(),
     	        		HttpStatus.OK);
     		}catch (Exception e) {
 				e.printStackTrace();
-    	        return new ResponseEntity<>(
+    	        return new ResponseEntity<Void>(
     	        		headerGenerator.getHeadersForError(),
     	        		HttpStatus.INTERNAL_SERVER_ERROR);
 			}
     	}
-    	return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.NOT_FOUND);      
+    	return new ResponseEntity<Void>(headerGenerator.getHeadersForError(), HttpStatus.NOT_FOUND);      
     }
-    @PostMapping(value = "/products", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-public ResponseEntity<Product> addProduct(
-        @RequestPart("product") Product product,
-        @RequestPart("files") MultipartFile[] files,
-        @RequestParam("defaultImageIndex") int defaultImageIndex) {
-    
-    try {
-        // 1. Lưu thông tin sản phẩm trước
-        Product savedProduct = productService.addProduct(product);
 
-        // 2. Xử lý lưu nhiều file ảnh
-        List<ProductImage> productImages = new ArrayList<>();
-        for (int i = 0; i < files.length; i++) {
-            String fileName = fileService.saveFile(files[i], product.getProductName()); // Hàm tạo slug + save file
-            
-            ProductImage img = new ProductImage();
-            img.setImageUrl(fileName);
-            img.setProduct(savedProduct);
-            img.setDefault(i == defaultImageIndex); // Chọn ảnh đại diện theo index gửi từ Front-end
-            productImages.add(img);
+	@PutMapping(value = "/products/{id}")
+    public ResponseEntity<Product> updateProduct(@PathVariable("id") Long id, @RequestBody Product productRequest) {
+        Product currentProduct = productService.getProductById(id);
+        if (currentProduct != null) {
+            try {
+                Product updatedProduct = productService.updateProduct(id, productRequest); 
+                return new ResponseEntity<Product>(
+                        updatedProduct,
+                        headerGenerator.getHeadersForSuccessGetMethod(),
+                        HttpStatus.OK);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new ResponseEntity<Product>(
+                        headerGenerator.getHeadersForError(),
+                        HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         }
-        
-        savedProduct.setImages(productImages);
-        productService.updateProduct(savedProduct.getId(), savedProduct);
-
-        return new ResponseEntity<>(savedProduct, HttpStatus.CREATED);
-    } catch (Exception e) {
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<Product>(headerGenerator.getHeadersForError(), HttpStatus.NOT_FOUND);
     }
-}
 }

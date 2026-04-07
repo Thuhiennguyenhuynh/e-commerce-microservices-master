@@ -12,4 +12,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAllByCategory_CategoryName(String categoryName);
     List<Product> findAllByProductNameContainingIgnoreCase(String name);
     boolean existsBySku(String sku);
+    // BỔ SUNG THÊM DÒNG NÀY ĐỂ CHECK UNIQUE SLUG
+    boolean existsBySlug(String slug);
 }

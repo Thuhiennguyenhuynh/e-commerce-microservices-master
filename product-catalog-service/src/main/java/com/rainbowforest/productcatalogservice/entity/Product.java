@@ -31,6 +31,10 @@ public class Product {
     @Pattern(regexp = NAME_PATTERN, message = "Tên sản phẩm không hợp lệ")
     private String productName;
 
+    // Slug
+    @Column(name = "slug", unique = true)
+    private String slug;
+
     @Column(name = "price")
     @NotNull(message = "Giá không được để trống")
     @DecimalMin(value = "0.0", inclusive = false, message = "Giá phải lớn hơn 0")
@@ -43,7 +47,7 @@ public class Product {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
     @NotNull(message = "Danh mục không được để trống")
-    @Valid
+    // @Valid
     private Category category;
 
     @Column(name = "availability")
@@ -54,21 +58,9 @@ public class Product {
     @Pattern(regexp = URL_PATTERN, message = "URL ảnh đại diện không hợp lệ")
     private String mainImageUrl;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
-    @Column(name = "image_url")
-    private List<@Pattern(regexp = URL_PATTERN, message = "URL ảnh không hợp lệ") String> imageUrls = new ArrayList<>();
-
+    // Sử dụng Entity ProductImage cho danh sách ảnh phụ
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImage> images = new ArrayList<>();
-
-    public List<ProductImage> getImages() {
-        return images;
-    }
-
-    public void setImages(List<ProductImage> images) {
-        this.images = images;
-    }
 
     public Product() {
     }
@@ -95,6 +87,14 @@ public class Product {
 
     public void setProductName(String productName) {
         this.productName = productName;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
     }
 
     public BigDecimal getPrice() {
@@ -137,11 +137,22 @@ public class Product {
         this.mainImageUrl = mainImageUrl;
     }
 
-    public List<String> getImageUrls() {
-        return imageUrls;
+    public List<ProductImage> getImages() {
+        return images;
     }
 
-    public void setImageUrls(List<String> imageUrls) {
-        this.imageUrls = imageUrls;
+    public void setImages(List<ProductImage> images) {
+        this.images = images;
+    }
+
+    // Tiện ích để thêm ảnh dễ dàng hơn và set đồng bộ quan hệ 2 chiều
+    public void addImage(ProductImage image) {
+        images.add(image);
+        image.setProduct(this);
+    }
+
+    public void removeImage(ProductImage image) {
+        images.remove(image);
+        image.setProduct(null);
     }
 }

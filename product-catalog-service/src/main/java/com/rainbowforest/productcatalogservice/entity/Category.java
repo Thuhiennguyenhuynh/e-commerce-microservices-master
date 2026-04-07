@@ -20,6 +20,13 @@ public class Category {
 
     @Column(name = "description")
     private String description;
+    // Thêm slug
+    @Column(name = "slug", unique = true)
+    private String slug;
+
+    // Thêm ảnh đơn danh mục
+    @Column(name = "image")
+    private String image;
 
     public Category() {
     }
@@ -46,5 +53,20 @@ public class Category {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+    public String getSlug() {
+        return slug;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }
