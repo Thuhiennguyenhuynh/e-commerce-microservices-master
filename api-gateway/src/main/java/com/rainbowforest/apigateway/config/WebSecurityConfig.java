@@ -32,7 +32,7 @@
     // }
 
 
-    package com.rainbowforest.apigateway.config;
+package com.rainbowforest.apigateway.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,10 +42,11 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
+
 @Configuration
 public class WebSecurityConfig {
 
-    // Cấu hình phân quyền cho WebFlux
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http.csrf().disable()
@@ -54,19 +55,20 @@ public class WebSecurityConfig {
         return http.build();
     }
 
-    // Cấu hình Global CORS cho WebFlux (Sử dụng CorsWebFilter thay vì CorsFilter)
     @Bean
     public CorsWebFilter corsWebFilter() {
-        CorsConfiguration config = new CorsConfiguration();
+        CorsConfiguration corsConfig = new CorsConfiguration();
         
-        config.setAllowCredentials(true); // Cho phép gửi cookie, thông tin xác thực
-        config.addAllowedOriginPattern("*"); // Cho phép mọi domain (kể cả localhost:3000) gọi tới
-        config.addAllowedHeader("*"); // Cho phép mọi header
-        config.addAllowedMethod("*"); // Cho phép mọi method (GET, POST, PUT, DELETE, OPTIONS)
-        
+        // Cấu hình linh hoạt: Cho phép localhost:3000 (HTTP và HTTPS)
+        corsConfig.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://localhost:3000")); 
+        corsConfig.setMaxAge(3600L);
+        corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        corsConfig.setAllowedHeaders(Arrays.asList("*"));
+        corsConfig.setAllowCredentials(true); // QUAN TRỌNG: Cho phép gửi Cookie/Session
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config); // Áp dụng cho mọi endpoint
-        
+        source.registerCorsConfiguration("/**", corsConfig);
+
         return new CorsWebFilter(source);
     }
 }
