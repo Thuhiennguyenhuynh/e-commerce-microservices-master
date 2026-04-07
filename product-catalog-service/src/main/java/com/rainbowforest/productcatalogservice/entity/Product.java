@@ -59,6 +59,17 @@ public class Product {
     @Column(name = "image_url")
     private List<@Pattern(regexp = URL_PATTERN, message = "URL ảnh không hợp lệ") String> imageUrls = new ArrayList<>();
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductImage> images = new ArrayList<>();
+
+    public List<ProductImage> getImages() {
+        return images;
+    }
+
+    public void setImages(List<ProductImage> images) {
+        this.images = images;
+    }
+
     public Product() {
     }
 

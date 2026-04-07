@@ -1,13 +1,18 @@
 package com.rainbowforest.productcatalogservice.controller;
 
 import com.rainbowforest.productcatalogservice.entity.Product;
+import com.rainbowforest.productcatalogservice.entity.ProductImage;
 import com.rainbowforest.productcatalogservice.http.header.HeaderGenerator;
 import com.rainbowforest.productcatalogservice.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.servlet.http.HttpServletRequest;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -110,4 +115,34 @@ public class AdminProductController {
     	}
     	return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.NOT_FOUND);      
     }
+    @PostMapping(value = "/products", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+public ResponseEntity<Product> addProduct(
+        @RequestPart("product") Product product,
+        @RequestPart("files") MultipartFile[] files,
+        @RequestParam("defaultImageIndex") int defaultImageIndex) {
+    
+    try {
+        // 1. Lưu thông tin sản phẩm trước
+        Product savedProduct = productService.addProduct(product);
+
+        // 2. Xử lý lưu nhiều file ảnh
+        List<ProductImage> productImages = new ArrayList<>();
+        for (int i = 0; i < files.length; i++) {
+            String fileName = fileService.saveFile(files[i], product.getProductName()); // Hàm tạo slug + save file
+            
+            ProductImage img = new ProductImage();
+            img.setImageUrl(fileName);
+            img.setProduct(savedProduct);
+            img.setDefault(i == defaultImageIndex); // Chọn ảnh đại diện theo index gửi từ Front-end
+            productImages.add(img);
+        }
+        
+        savedProduct.setImages(productImages);
+        productService.updateProduct(savedProduct.getId(), savedProduct);
+
+        return new ResponseEntity<>(savedProduct, HttpStatus.CREATED);
+    } catch (Exception e) {
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
 }
