@@ -43,4 +43,33 @@ public class AdminCategoryController {
         }
         return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.BAD_REQUEST);
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<Category> updateCategory(@PathVariable("id") Long id, @RequestBody Category category) {
+        try {
+            Category updated = categoryService.updateCategory(id, category);
+            if (updated != null) {
+                return new ResponseEntity<>(updated, headerGenerator.getHeadersForSuccessGetMethod(), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCategory(@PathVariable("id") Long id) {
+        try {
+            Category category = categoryService.getCategoryById(id);
+            if (category != null) {
+                categoryService.deleteCategory(id);
+                return new ResponseEntity<>(headerGenerator.getHeadersForSuccessGetMethod(), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Bắt lỗi ràng buộc khóa ngoại (Foreign key) hoặc lỗi truy xuất DB
+            return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
