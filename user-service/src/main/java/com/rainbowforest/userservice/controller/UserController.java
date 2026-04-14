@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin("*")
 
@@ -72,6 +73,8 @@ public class UserController {
     public ResponseEntity<User> addUser(@RequestBody User user, HttpServletRequest request) {
         if (user != null)
     		try {
+            String encodedPassword = passwordEncoder.encode(user.getUserPassword());
+            user.setUserPassword(encodedPassword);
             userService.saveUser(user);
             return new ResponseEntity<User>(
                     user,
@@ -85,11 +88,14 @@ public class UserController {
     }
 
     @PostMapping(value = "/users/login")
-    public ResponseEntity<User> loginUser(@RequestParam("userName") String userName, @RequestParam("password") String password) {
+    public ResponseEntity<User> loginUser(@RequestBody Map<String, String> loginData) {
+        String userName = loginData.get("userName");
+        String password = loginData.get("password");
+
         User user = userService.getUserByName(userName);
 
-        // Kiểm tra user có tồn tại và password có khớp không (Lưu ý: Thực tế nên mã hóa password)
-        if (user != null && passwordEncoder.matches (user.getUserPassword(), password)) {
+        // Kiểm tra user có tồn tại và password có khớp không
+        if (user != null && passwordEncoder.matches(user.getUserPassword(), password)) {
             return new ResponseEntity<User>(
                     user,
                     headerGenerator.getHeadersForSuccessGetMethod(),
@@ -97,7 +103,7 @@ public class UserController {
         }
         return new ResponseEntity<User>(
                 headerGenerator.getHeadersForError(),
-                HttpStatus.UNAUTHORIZED); // Trả về 401 nếu sai tài khoản/mật khẩu
+                HttpStatus.UNAUTHORIZED);
     }
 
     @PutMapping(value = "/users/{id}")
