@@ -6,85 +6,90 @@ import com.rainbowforest.userservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+
 @CrossOrigin("*")
+
 @RestController
 public class UserController {
 
     @Autowired
     private UserService userService;
-    
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     @Autowired
     private HeaderGenerator headerGenerator;
-    
-    @GetMapping (value = "/users")
-    public ResponseEntity<List<User>> getAllUsers(){
-        List<User> users =  userService.getAllUsers();
-        if(!users.isEmpty()) {
-        	return new ResponseEntity<List<User>>(
-        		users,
-        		headerGenerator.getHeadersForSuccessGetMethod(),
-        		HttpStatus.OK);
+
+    @GetMapping(value = "/users")
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userService.getAllUsers();
+        if (!users.isEmpty()) {
+            return new ResponseEntity<List<User>>(
+                    users,
+                    headerGenerator.getHeadersForSuccessGetMethod(),
+                    HttpStatus.OK);
         }
         return new ResponseEntity<List<User>>(
-        		headerGenerator.getHeadersForError(),
-        		HttpStatus.NOT_FOUND);
+                headerGenerator.getHeadersForError(),
+                HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping (value = "/users", params = "name")
-    public ResponseEntity<User> getUserByName(@RequestParam("name") String userName){
-    	User user = userService.getUserByName(userName);
-    	if(user != null) {
-    		return new ResponseEntity<User>(
-    				user,
-    				headerGenerator.
-    				getHeadersForSuccessGetMethod(),
-    				HttpStatus.OK);
-    	}
+    @GetMapping(value = "/users", params = "name")
+    public ResponseEntity<User> getUserByName(@RequestParam("name") String userName) {
+        User user = userService.getUserByName(userName);
+        if (user != null) {
+            return new ResponseEntity<User>(
+                    user,
+                    headerGenerator.
+                            getHeadersForSuccessGetMethod(),
+                    HttpStatus.OK);
+        }
         return new ResponseEntity<User>(
-        		headerGenerator.getHeadersForError(),
-        		HttpStatus.NOT_FOUND);
+                headerGenerator.getHeadersForError(),
+                HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping (value = "/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable("id") Long id){
+    @GetMapping(value = "/users/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable("id") Long id) {
         User user = userService.getUserById(id);
-        if(user != null) {
-    		return new ResponseEntity<User>(
-    				user,
-    				headerGenerator.
-    				getHeadersForSuccessGetMethod(),
-    				HttpStatus.OK);
-    	}
+        if (user != null) {
+            return new ResponseEntity<User>(
+                    user,
+                    headerGenerator.
+                            getHeadersForSuccessGetMethod(),
+                    HttpStatus.OK);
+        }
         return new ResponseEntity<User>(
-        		headerGenerator.getHeadersForError(),
-        		HttpStatus.NOT_FOUND);
+                headerGenerator.getHeadersForError(),
+                HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping (value = "/users")
-    public ResponseEntity<User> addUser(@RequestBody User user, HttpServletRequest request){
-    	if(user != null)
+    @PostMapping(value = "/users")
+    public ResponseEntity<User> addUser(@RequestBody User user, HttpServletRequest request) {
+        if (user != null)
     		try {
-    			userService.saveUser(user);
-    			return new ResponseEntity<User>(
-    					user,
-    					headerGenerator.getHeadersForSuccessPostMethod(request, user.getId()),
-    					HttpStatus.CREATED);
-    		}catch (Exception e) {
-    			e.printStackTrace();
-    			return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-    	return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
+            userService.saveUser(user);
+            return new ResponseEntity<User>(
+                    user,
+                    headerGenerator.getHeadersForSuccessPostMethod(request, user.getId()),
+                    HttpStatus.CREATED);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping(value = "/users/login")
     public ResponseEntity<User> loginUser(@RequestParam("userName") String userName, @RequestParam("password") String password) {
         User user = userService.getUserByName(userName);
-        
+
         // Kiểm tra user có tồn tại và password có khớp không (Lưu ý: Thực tế nên mã hóa password)
-        if (user != null && password.equals(user.getUserPassword())) {
+        if (user != null && passwordEncoder.matches (user.getUserPassword(), password)) {
             return new ResponseEntity<User>(
                     user,
                     headerGenerator.getHeadersForSuccessGetMethod(),
@@ -93,9 +98,9 @@ public class UserController {
         return new ResponseEntity<User>(
                 headerGenerator.getHeadersForError(),
                 HttpStatus.UNAUTHORIZED); // Trả về 401 nếu sai tài khoản/mật khẩu
-        }
+    }
 
-        @PutMapping(value = "/users/{id}")
+    @PutMapping(value = "/users/{id}")
     public ResponseEntity<User> updateUser(@PathVariable("id") Long id, @RequestBody User user) {
         User updated = userService.updateUser(id, user);
         if (updated != null) {
@@ -108,4 +113,4 @@ public class UserController {
                 headerGenerator.getHeadersForError(),
                 HttpStatus.NOT_FOUND);
     }
-    }
+}
