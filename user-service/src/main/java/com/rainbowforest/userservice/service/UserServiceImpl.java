@@ -7,6 +7,7 @@ import com.rainbowforest.userservice.repository.UserRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.List;
 
 @Service
@@ -18,6 +19,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRoleRepository userRoleRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public List<User> getAllUsers() {
@@ -56,6 +60,10 @@ public class UserServiceImpl implements UserService {
             existing.setUserPassword(user.getUserPassword());
         }
 
+        if (user.getUserPassword() != null) {
+            // FIX LỖI: Cần mã hóa mật khẩu trước khi update
+            existing.setUserPassword(passwordEncoder.encode(user.getUserPassword()));
+        }
         // assume payload intentionally sets active (0 or 1)
         existing.setActive(user.getActive());
 
