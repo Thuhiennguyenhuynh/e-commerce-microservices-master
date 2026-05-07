@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-@CrossOrigin("*")
+
 @RestController
 public class ProductController {
 
@@ -32,9 +32,9 @@ public class ProductController {
         		HttpStatus.NOT_FOUND);       
     }
 
-    @GetMapping(value = "/products", params = "category")
-    public ResponseEntity<List<Product>> getAllProductByCategory(@RequestParam ("category") String category){
-        List<Product> products = productService.getAllProductByCategory(category);
+    @GetMapping(value = "/products", params = "categoryId")
+   public ResponseEntity<List<Product>> getAllProductByCategory(@RequestParam ("categoryId") Long categoryId){
+        List<Product> products = productService.getAllProductByCategory(categoryId);
         if(!products.isEmpty()) {
         	return new ResponseEntity<List<Product>>(
         			products,

@@ -7,6 +7,8 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table (name = "products")
@@ -28,7 +30,15 @@ public class Product {
     private BigDecimal price;
 
     @Column (name = "discription")
+    @NotBlank(message = "Mô tả sản phẩm không được để trống")
     private String discription;
+
+    @Column(name = "image_url")
+    @NotBlank(message = "URL hình ảnh không được để trống")
+    private String imageUrl;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductImage> images = new ArrayList<>();
 
     // @Column (name = "category")
     // @NotNull
@@ -81,9 +91,21 @@ public class Product {
 		this.discription = discription;
 	}
 
-	// public String getCategory() {
-	// 	return category;
-	// }
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
+
+    public List<ProductImage> getImages() {
+        return images;
+    }
+
+    public void setImages(List<ProductImage> images) {
+        this.images = images;
+    }
 
 	// public void setCategory(String category) {
 	// 	this.category = category;

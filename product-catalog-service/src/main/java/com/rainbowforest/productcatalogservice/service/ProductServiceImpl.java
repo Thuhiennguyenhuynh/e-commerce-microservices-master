@@ -19,14 +19,14 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findAll();
     }
 
-    @Override
-    public List<Product> getAllProductByCategory(String category) {
-        return productRepository.findAllByCategory(category);
-    }
+   @Override
+public List<Product> getAllProductByCategory(Long categoryId) {
+    return productRepository.findAllByCategory_Id(categoryId);
+}
 
     @Override
     public Product getProductById(Long id) {
-        return productRepository.getOne(id);
+        return productRepository.findById(id).orElse(null);
     }
 
     @Override
@@ -36,6 +36,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product addProduct(Product product) {
+        if (product.getImages() != null) {
+            product.getImages().forEach(image -> image.setProduct(product));
+        }
         return productRepository.save(product);
     }
 
@@ -53,6 +56,16 @@ public class ProductServiceImpl implements ProductService {
             }
             if (product.getCategory() != null) {
                 existing.setCategory(product.getCategory());
+            }
+            if (product.getImageUrl() != null) {
+                existing.setImageUrl(product.getImageUrl());
+            }
+            if (product.getImages() != null) {
+                existing.getImages().clear();
+                product.getImages().forEach(image -> {
+                    image.setProduct(existing);
+                    existing.getImages().add(image);
+                });
             }
             existing.setAvailability(product.getAvailability());
             return productRepository.save(existing);

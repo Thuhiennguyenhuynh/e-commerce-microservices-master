@@ -4,7 +4,7 @@ import com.rainbowforest.productcatalogservice.entity.Product;
 import com.rainbowforest.productcatalogservice.entity.Category;
 import com.rainbowforest.productcatalogservice.repository.ProductRepository;
 import org.junit.Before;
-import org.junit.*;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.is;
@@ -24,7 +25,7 @@ public class ProductServiceTests {
 
     private static final String PRODUCT_NAME= "test";
     private static final Long PRODUCT_ID = 5L;
-    private static final String PRODUCT_CATEGORY = "testCategory";
+    private static final Long CATEGORY_ID = 1L;
 
     private List<Product> products;
     private Product product;
@@ -38,7 +39,8 @@ public class ProductServiceTests {
     @Before
     public void setUp(){
         Category category = new Category();
-        category.setCategoryName(PRODUCT_CATEGORY);
+        category.setId(CATEGORY_ID);
+        category.setCategoryName("testCategory");
 
         product = new Product();
         product.setId(PRODUCT_ID);
@@ -67,29 +69,29 @@ public class ProductServiceTests {
     @Test
     public void get_one_by_id_test(){
         // Data preparation
-        Mockito.when(productRepository.getOne(PRODUCT_ID)).thenReturn(product);
+        Mockito.when(productRepository.findById(PRODUCT_ID)).thenReturn(Optional.of(product));
 
         // Method call
         Product found = productService.getProductById(PRODUCT_ID);
 
         // Verification
         assertEquals(found.getId(), PRODUCT_ID);
-        Mockito.verify(productRepository, Mockito.times(1)).getOne(Mockito.anyLong());
+        Mockito.verify(productRepository, Mockito.times(1)).findById(Mockito.anyLong());
         Mockito.verifyNoMoreInteractions(productRepository);
     }
 
     @Test
     public void get_all_product_by_category_test(){
         // Data preparation
-        Mockito.when(productRepository.findAllByCategory(PRODUCT_CATEGORY)).thenReturn(products);
+        Mockito.when(productRepository.findAllByCategory_Id(CATEGORY_ID)).thenReturn(products);
 
         //Method call
-        List<Product> foundProducts = productService.getAllProductByCategory(PRODUCT_CATEGORY);
+        List<Product> foundProducts = productService.getAllProductByCategory(CATEGORY_ID);
 
         //Verification
-        assertEquals(products.get(0).getCategory().getCategoryName(), PRODUCT_CATEGORY);
-        assertEquals(products.get(0).getProductName(), PRODUCT_NAME);
-        Mockito.verify(productRepository, Mockito.times(1)).findAllByCategory(Mockito.anyString());
+        assertEquals(foundProducts.get(0).getCategory().getId(), CATEGORY_ID);
+        assertEquals(foundProducts.get(0).getProductName(), PRODUCT_NAME);
+        Mockito.verify(productRepository, Mockito.times(1)).findAllByCategory_Id(Mockito.anyLong());
         Mockito.verifyNoMoreInteractions(productRepository);
     }
 

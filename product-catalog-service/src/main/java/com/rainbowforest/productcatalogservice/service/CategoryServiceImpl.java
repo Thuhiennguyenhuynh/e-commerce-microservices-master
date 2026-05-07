@@ -2,6 +2,7 @@ package com.rainbowforest.productcatalogservice.service;
 
 import com.rainbowforest.productcatalogservice.entity.Category;
 import com.rainbowforest.productcatalogservice.repository.CategoryRepository;
+import com.rainbowforest.productcatalogservice.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    private ProductRepository productRepository;
+
     @Override
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
@@ -27,6 +31,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category addCategory(Category category) {
+        if (categoryRepository.existsByCategoryName(category.getCategoryName())) {
+            throw new RuntimeException("Tên danh mục đã tồn tại!");
+        }
         return categoryRepository.save(category);
     }
 
@@ -43,6 +50,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void deleteCategory(Long id) {
+        if (productRepository.existsByCategory_Id(id)) {
+            throw new RuntimeException("Không thể xóa danh mục vì đang có sản phẩm thuộc danh mục này!");
+        }
         categoryRepository.deleteById(id);
     }
 }

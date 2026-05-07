@@ -30,6 +30,9 @@ public class UserDetails {
     @Column (name = "country", length = 30)
     private String country;
 
+    @Column (name = "image_url")
+    private String imageUrl;
+
     @OneToOne(mappedBy = "userDetails")
 	@JsonIgnore 
     private User user;
@@ -115,6 +118,14 @@ public class UserDetails {
 
 	public void setCountry(String country) {
 		this.country = country;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 
 	public User getUser() {

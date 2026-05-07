@@ -11,9 +11,8 @@ import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-@CrossOrigin("*")
 @RestController
-@RequestMapping("/admin/products")
+@RequestMapping("/admin")
 public class AdminProductController {
 
     @Autowired
