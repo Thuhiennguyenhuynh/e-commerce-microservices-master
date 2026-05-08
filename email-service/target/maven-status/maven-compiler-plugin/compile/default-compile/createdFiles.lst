@@ -1,0 +1,3 @@
+com\rainbowforest\emailservice\controller\EmailController.class
+com\rainbowforest\emailservice\EmailServiceApplication.class
+com\rainbowforest\emailservice\service\EmailService.class

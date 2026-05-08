@@ -1,6 +1,4 @@
 package com.rainbowforest.userservice.config;
-
-
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.context.annotation.Bean;

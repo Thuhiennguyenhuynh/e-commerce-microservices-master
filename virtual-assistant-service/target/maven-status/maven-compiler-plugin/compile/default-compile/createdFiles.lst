@@ -1,0 +1,3 @@
+com\rainbowforest\virtualassistant\service\ChatService.class
+com\rainbowforest\virtualassistant\VirtualAssistantApplication.class
+com\rainbowforest\virtualassistant\controller\ChatController.class
